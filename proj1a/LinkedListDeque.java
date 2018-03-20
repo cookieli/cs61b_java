@@ -1,9 +1,5 @@
 public class LinkedListDeque<Item> {
-    private  LinkNode sentinelF;//point to the first node
-    private  LinkNode sentinelB;//point to the last node
-    private int size;
-
-    public class LinkNode {
+    private  class LinkNode {
         public Item item;
         public LinkNode next;
         public LinkNode prev;
@@ -14,33 +10,29 @@ public class LinkedListDeque<Item> {
             this.prev = prev;
         }
     }
+    private LinkNode sentinel;
+    private int size;
     public LinkedListDeque() {
-        this.sentinelF = new LinkNode(null, null, null);
-        this.sentinelB = new LinkNode(null, this.sentinelF, null);
-        this.sentinelF.next = this.sentinelF;
+        this.sentinel = new LinkNode(null,null,null);
+        this.sentinel.prev = this.sentinel;
+        this.sentinel.next = this.sentinel;
         this.size = 0;
     }
-    public LinkedListDeque(Item i) {
-        this.sentinelF = new LinkNode(null, null, null);
-        this.sentinelB = new LinkNode(null, null, null);
-        this.sentinelF.next = new LinkNode(i, sentinelF,sentinelB);
-        this.sentinelB.prev = sentinelF.next;
-        this.size = 1;
-    }
     public void addFirst(Item item) {
-        LinkNode newNode = new LinkNode(item , null, null);
-        newNode.next = this.sentinelF.next;
+        LinkNode newNode = new LinkNode(item, null, null);
+        newNode.next = this.sentinel.next;
+        this.sentinel.next = newNode;
+        newNode.prev = this.sentinel;
         newNode.next.prev = newNode;
-        this.sentinelF.next = newNode;
-        newNode.prev = this.sentinelF;
-        size += 1;
+        this.size += 1;
+
     }
     public void addLast(Item item) {
         LinkNode newNode = new LinkNode(item, null, null);
-        this.sentinelB.prev.next = newNode;
-        newNode.prev = this.sentinelB.prev;
-        newNode.next = this.sentinelB;
-        this.sentinelB.prev = newNode;
+        newNode.prev = this.sentinel.prev;
+        this.sentinel.prev = newNode;
+        newNode.next = this.sentinel;
+        newNode.prev.next = newNode;
         this.size += 1;
     }
     public boolean isEmpty() {
@@ -50,51 +42,48 @@ public class LinkedListDeque<Item> {
         return this.size;
     }
     public Item removeFirst() {
-        LinkNode first = this.sentinelF.next;
-        this.sentinelF.next = first.next;
-        this.sentinelF.next.prev = this.sentinelF;
+        LinkNode first = this.sentinel.next;
+        this.sentinel.next = first.next;
+        first.next.prev = this.sentinel;
         first.next = null;
         first.prev = null;
         this.size -= 1;
         return first.item;
     }
     public Item removeLast() {
-        LinkNode last = this.sentinelB.prev;
-        this.sentinelB.prev = last.prev;
-        this.sentinelB.prev.next = this.sentinelB;
+        LinkNode last = this.sentinel.prev;
+        this.sentinel.prev = last.prev;
+        last.prev.next = this.sentinel;
         last.next = null;
         last.prev = null;
         this.size -= 1;
         return last.item;
     }
     public Item get(int index) {
-        LinkNode newNode = this.sentinelF.next;
-        for (int i = 0; i < index ; i++ ) {
-            if(newNode.next == this.sentinelB) {
-                return null;
-            }
-            newNode = newNode.next;
+        if(index > this.size())  return null;
+        LinkNode cursor = this.sentinel.next;
+        for(int i = 0; i < index; i++) {
+            if(cursor.next == null)  return null;
+            cursor = cursor.next;
         }
-        return newNode.item;
-    }
-    public void printDeque() {
-        LinkNode thisNode = this.sentinelF.next;
-        while (thisNode != null && thisNode.item != null) {
-            System.out.print(thisNode.item.toString() + " ");
-            thisNode = thisNode.next;
-        }
-        System.out.println();
-    }
-    public LinkNode getRecursive(int index, LinkNode node) {
-        if (index == 0) {
-            return node;
-        } else {
-            return getRecursive(index - 1, node.next);
-        }
+        return cursor.item;
     }
     public Item getRecursive(int index) {
-        if (this.size() == 0) return null;
-        return this.getRecursive(index, this.sentinelB.next).item;
+        if(index > this.size())  return null;
+        if(getRecursive(this.sentinel.next, index) == null)  return null;
+        return getRecursive(this.sentinel.next, index).item;
+    }
+    public LinkNode getRecursive(LinkNode node, int index) {
+        if(index == 0)  return node;
+        if(node == null) return null;
+        return getRecursive(node.next, index - 1);
+    }
+    public void printDeque() {
+        LinkNode cursor = this.sentinel.next;
+        while(cursor!= this.sentinel) {
+            System.out.print(cursor.item.toString());
+            cursor = cursor.next;
+        }
     }
 
 }
