@@ -9,6 +9,7 @@ public class StudentArrayDequeLauncher {
             double numberBetweenZeroAndOne = StdRandom.uniform();
 
             if (numberBetweenZeroAndOne < 0.5) {
+              //  DequeOperation sadOp1 = new DequeOperation("");
                 sad1.addLast(i);
             } else {
                 sad1.addFirst(i);
