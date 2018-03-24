@@ -4,7 +4,7 @@ public class GuitarHeroLite {
     private static final double CONCERT_C = CONCERT_A * Math.pow(2, 3.0 / 12.0);
 
     public static void main(String[] args) {
-        /* create two guitar strings, for concert A and C */
+//        /* create two guitar strings, for concert A and C */
         synthesizer.GuitarString stringA = new synthesizer.GuitarString(CONCERT_A);
         synthesizer.GuitarString stringC = new synthesizer.GuitarString(CONCERT_C);
 
