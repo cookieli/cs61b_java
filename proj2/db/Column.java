@@ -29,7 +29,9 @@ public class Column<Item> {
 
 
     public void printCol() {
-        System.out.println("contents of " + this.name + " " +  this.col);
+        //System.out.println(  this.col);
+        for(int i = 0; i < this.col.size(); i++)
+            System.out.println(this.col.get(i) + " ");
     }
 
 
