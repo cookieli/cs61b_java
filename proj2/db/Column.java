@@ -24,9 +24,13 @@ public class Column<Item> {
 
 
     public Item get(int i) {
+        if(i >= this.size())  return null;
         return this.col.get(i);
     }
 
+    public String getName() {
+        return this.name;
+    }
 
     public void printCol() {
         //System.out.println(  this.col);
@@ -44,6 +48,14 @@ public class Column<Item> {
         return this.col.size();
     }
 
+    public static boolean isSameSize(Column ...cols) {
+        for(int i = 1; i < cols.length; i++) {
+            if(cols[i].size() != cols[i-1].size()) {
+                return false;
+            }
+        }
+        return true;
+    }
     public static void main(String[] args) {
         Column<String> c = new Column<>("A");
         c.add("sdada");

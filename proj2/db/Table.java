@@ -37,6 +37,10 @@ public class Table {
         return this.rowNum;
     }
 
+    public String getTag(int index) {
+        return this.tags.get(index);
+    }
+
     public void insert (Integer ...values) {
         if(values.length != tags.size()) {
             System.out.println("values' length can't map tags");
@@ -44,6 +48,7 @@ public class Table {
         }
         for(int i = 0; i < values.length; i++) {
             bind.get(tags.get(i)).add(values[i]);
+
         }
         this.rowNum += 1;
     }
