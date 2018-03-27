@@ -13,7 +13,9 @@ public class Table {
     public int rowNum;
     public int colNum;
 
-
+    public Table() {
+        this("untitled");
+    }
     public Table (String name, String ...tags) {
         this.name = name;
         this.tags = new LinkedList<>();

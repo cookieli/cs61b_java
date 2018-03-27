@@ -1,66 +1,85 @@
 package db;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Row {
     private int order;
-    private Map<String,Column> values;
 
+    private int colNum = 0;
 
-    public Row(int order) {
+    private List<String> names;
+
+    private Map<String, Integer> row;
+
+    public Row(int order, String ...names) {
         this.order = order;
-        this.values = new HashMap<>();
-    }
-    public void addTag(String name) {
-        this.values.put(name, null);
-    }
-
-    public<T> void add(String name, T value) {
-        this.values.put(name, new Column(name, value));
-    }
-
-
-    public int getOrder() {
-        return this.order;
+        this.row = new HashMap<>();
+        this.names = new ArrayList<>();
+        this.colNum = names.length;
+        for(int i = 0; i < names.length; i++) {
+            this.names.add(names[i]);
+            this.row.put(names[i] ,0);
+        }
     }
 
-    public Object getValue(String name) {
-        return this.values.get(name).get(0);
+    public void setColNum(int colNum) {
+        this.colNum = colNum;
     }
 
+    public int getColNum() {
+        return this.colNum;
+    }
 
-    public int size() {
-        return this.values.size();
+    public void addValues(Integer ...values) {
+        if(values.length != this.names.size()) {
+            System.out.println("names can't match values");
+            return;
+        }
+        for(int i = 0; i < values.length; i++) {
+            this.row.put(this.names.get(i), values[i]);
+        }
+    }
+    public List<String> getNames() {
+        return this.names;
+    }
+
+    public Integer getValue(int i) {
+        return this.row.get(this.names.get(i));
+    }
+
+    public Integer getValue(String name) {return this.row.get(name);}
+
+    public Integer[] getAllValues() {
+        Integer[] temp = new Integer[this.colNum];
+        for(int i = 0; i < this.colNum; i++) {
+            temp[i] = this.getValue(i);
+        }
+        return temp;
     }
 
     public void printRow() {
-        System.out.println("order" + this.order + " ");
-        Set<String> s = this.values.keySet();
-        for (String name:s) {
-            System.out.print(name + " ");
+        System.out.println(this.getNames());
+        Integer[] temp = this.getAllValues();
+        for(int i = 0 ; i < temp.length ; i++) {
+            System.out.print(temp[i] + " , ");
         }
         System.out.println();
-        for (String name:s) {
-            System.out.print(this.getValue(name) + " ");
-        }
     }
 
- /*   @Test
-    public void testRow() {
-        Row r = new Row(1);
-        r.add("a", 1);
-        r.add("b","sting");
-        r.add("c", 3.2);
-        assertEquals(3, r.size());
-    }*/
-    public static void main (String[] args) {
-        Row r = new Row(1);
-        r.addTag("la");
-        r.add("la","ass");
-        System.out.println(r.getValue("la"));
 
+    public static Row contactRows(Row r1, Row r2) {
+        Row temp = new Row(0);
+        temp.names.addAll(r1.names);
+        temp.names.addAll(r2.names);
+        temp.row.putAll(r1.row);
+        temp.row.putAll(r2.row);
+        temp.setColNum(r1.getColNum()+r2.getColNum());
+        return temp;
     }
 
 }
