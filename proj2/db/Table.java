@@ -61,6 +61,15 @@ public class Table {
         return col.get(index);
     }
 
+    public Integer[] getRow (int index) {
+        Integer[] temp = new Integer[this.colNum];
+        for(int i = 0 ; i < this.colNum ; i++) {
+            String name = this.tags.get(i);
+            temp[i] = this.get(name, index);
+        }
+        return temp;
+    }
+
 
     public Column<Integer> getCol(String tag) {
         return this.bind.get(tag);
