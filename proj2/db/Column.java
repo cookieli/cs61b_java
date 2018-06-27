@@ -1,6 +1,7 @@
 package db;
 
 import java.util.ArrayList;
+
 import java.util.HashSet;
 
 public class Column<Item> {
@@ -18,38 +19,45 @@ public class Column<Item> {
         NanSet = new HashSet<>();
         noValueSet = new HashSet<>();
     }
-    public String getName(){
+
+    public String getName() {
         return name;
     }
+
     public Type getType() {
         return type;
     }
 
-    public int size(){
+    public int size() {
         return items.size();
     }
 
-    public void add(Item t){
+    public void add(Item t) {
         items.add(t);
     }
-    public void add(Type t){
+
+    public void add(Type t) {
         items.add(null);
-        if(t == Type.NaN)
+        if (t == Type.NaN)
             NanSet.add(size() - 1);
-        else if(t == Type.NOVALUE)
+        else if (t == Type.NOVALUE)
             noValueSet.add(size() - 1);
         else
             throw new IllegalArgumentException("not Nan or NOVALUE");
     }
-    public Item get(int row){
+
+    public Item get(int row) {
         return items.get(row);
     }
-    public boolean containsNan(int row){
+
+    public boolean containsNan(int row) {
         return NanSet.contains(row);
     }
-    public boolean containsNoValue(int row){
+
+    public boolean containsNoValue(int row) {
         return noValueSet.contains(row);
     }
+
     public Item remove(int row) {
         return items.remove(row);
     }
@@ -57,10 +65,11 @@ public class Column<Item> {
     public ArrayList<Item> getItems() {
         return items;
     }
+
     @Override
-    public String toString(){
-        String s = name + "\\" + type.getDecription() +"\n" ;
-        for(int i = 0; i < size(); i++) {
+    public String toString() {
+        String s = name + "\\" + type.getDecription() + "\n";
+        for (int i = 0; i < size(); i++) {
             if (containsNoValue(i)) {
                 s += Type.NOVALUE + "\n";
                 continue;
