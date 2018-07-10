@@ -40,8 +40,10 @@ public class TableTest {
         temp.add(2, "6.6");
         t1.AddRowValues(temp);
         System.out.println(t1);
+        t1.removeColumn("c3");
+        System.out.println(t1);
         assertEquals(t1.getRowNum(), 3);
-        assertEquals(t1.getColNum(), 3);
+        assertEquals(t1.getColNum(), 2);
     }
     @Test
     public void TestJoins() {
@@ -143,6 +145,84 @@ public class TableTest {
         t4.AddRowValues(temp);
         System.out.println(t4);
         comb = Table.Join(t3, t4);
+        System.out.println(comb);
+        List<Table> l = new ArrayList<>();
+        l.add(t3);
+        l.add(t4);
+        comb = Table.Join(l);
+        System.out.println(comb);
+    }
+    @Test
+    public void TestMultipleJoins() {
+        Table t1 = new Table("T1");
+        List<String> temp;
+        Column<Integer> c1 = new Column<>("x", Type.INT);
+        Column<String>  c2 = new Column<>("y", Type.INT);
+        //Column<Float>  c3 = new Column<>("c3", Type.FLOAT);
+        t1.AddColumn(c1);
+        t1.AddColumn(c2);
+        //t1.AddColumn(c3);
+        temp = new ArrayList<>();
+        temp.add("1");
+        temp.add("7");
+        t1.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "7");
+        temp.add(1, "7");
+        t1.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "3");
+        temp.add(1, "9");
+        t1.AddRowValues(temp);
+        System.out.println(t1);
+        Table t2 = new Table("T2");
+        Column<Integer> c4 = new Column<>("x", Type.INT);
+        Column<String>  c5 = new Column<>("z", Type.INT);
+        t2.AddColumn(c4);
+        t2.AddColumn(c5);
+        temp = new ArrayList<>();
+        temp.add("1");
+        temp.add("8");
+        t2.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "7");
+        temp.add(1, "9");
+        t2.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "3");
+        temp.add(1, "10");
+        t2.AddRowValues(temp);
+        System.out.println(t2);
+        Table t3 = new Table("T3");
+        Column<Integer> c6 = new Column<>("x", Type.INT);
+        Column<String>  c7 = new Column<>("h", Type.INT);
+        t3.AddColumn(c6);
+        t3.AddColumn(c7);
+        temp = new ArrayList<>();
+        temp.add("1");
+        temp.add("8");
+        t3.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "7");
+        temp.add(1, "9");
+        t3.AddRowValues(temp);
+        temp = new ArrayList<>();
+        temp.add(0, "3");
+        temp.add(1, "10");
+        t3.AddRowValues(temp);
+        System.out.println(t3);
+        List<Table> l = new ArrayList<>();
+        l.add(t1);
+        l.add(t2);
+        l.add(t3);
+        Table comb = Table.Join(l);
+        System.out.println(comb);
+        comb = Table.Join(t1, t2);
+        System.out.println(comb);
+        List<String> colNames = new ArrayList<>();
+        colNames.add("x");
+        colNames.add("z");
+        comb = Table.constructSelectedTable("", l,colNames);
         System.out.println(comb);
 
     }

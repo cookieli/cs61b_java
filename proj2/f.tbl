@@ -1,0 +1,3 @@
+x INT,y FLOAT,z STRING,
+3,2.2,'hello',
+7,3.3,'yang',

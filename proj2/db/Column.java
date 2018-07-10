@@ -46,8 +46,12 @@ public class Column<Item> {
             throw new IllegalArgumentException("not Nan or NOVALUE");
     }
 
-    public Item get(int row) {
-        return items.get(row);
+    public String get(int row) {
+        if(containsNoValue(row))
+            return Type.NOVALUE.getDecription();
+        if(containsNan(row))
+            return Type.NaN.getDecription();
+        return String.valueOf(items.get(row));
     }
 
     public boolean containsNan(int row) {
@@ -59,6 +63,15 @@ public class Column<Item> {
     }
 
     public Item remove(int row) {
+        if(row >= size())
+            throw new IllegalArgumentException("row number is greater than size");
+        if(containsNoValue(row)){
+//            items.remove(row);
+            noValueSet.remove(row);
+        } else if(containsNan(row)){
+//            items.remove(row);
+            NanSet.remove(row);
+        }
         return items.remove(row);
     }
 

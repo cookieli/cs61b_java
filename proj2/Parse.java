@@ -35,13 +35,13 @@ public class Parse {
             System.err.println("Expected a single query argument");
             return;
         }
-
         eval(args[0]);
     }
 
     private static void eval(String query) {
         Matcher m;
         if ((m = CREATE_CMD.matcher(query)).matches()) {
+            System.out.println(m.group(1));
              createTable(m.group(1));
         } else if ((m = LOAD_CMD.matcher(query)).matches()) {
              loadTable(m.group(1));
@@ -63,6 +63,8 @@ public class Parse {
     private static void createTable(String expr) {
         Matcher m;
         if ((m = CREATE_NEW.matcher(expr)).matches()) {
+            System.out.println(m.group(1));
+            System.out.println(m.group(2));
             createNewTable(m.group(1), m.group(2).split(COMMA));
         } else if ((m = CREATE_SEL.matcher(expr)).matches()) {
             createSelectedTable(m.group(1), m.group(2), m.group(3), m.group(4));

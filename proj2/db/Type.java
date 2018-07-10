@@ -4,7 +4,7 @@ public enum Type {
     STRING("string"),
     FLOAT("float"),
     INT("int"),
-    NOVALUE("noValue"),
+    NOVALUE("NOVALUE"),
     NaN("NaN");
     private String description;
     private Type(String description){

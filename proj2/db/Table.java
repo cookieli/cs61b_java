@@ -1,9 +1,14 @@
 package db;
 
 
+import db.comparision.Comparision;
+import db.operation.Operation;
+import org.omg.PortableInterceptor.INACTIVE;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 public class Table {
     private String name;
@@ -24,6 +29,13 @@ public class Table {
         rowNum = 0;
     }
 
+    public Table(String name, List<Column> columnList) {
+        this(name);
+        for(Column c: columnList) {
+            AddColumn(c);
+        }
+    }
+
     public int getRowNum() {
         return rowNum;
     }
@@ -39,7 +51,93 @@ public class Table {
         cols.add(c);
         tagsToIndex.put(tag, colNum);
         colNum++;
+        if(rowNum == 0 && colNum == 1)
+            rowNum = c.size();
+        else if(rowNum != c.size())
+            throw new IllegalArgumentException("Column's size can't match rowNum");
 
+    }
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public boolean containsColumn(String name){
+        return tags.contains(name);
+    }
+
+    public void AddColumnFromTable(Table joined, String colName){
+        Column c = joined.cols(joined.tagsToIndex.get(colName));
+        AddColumn(c);
+    }
+
+    public Column getColumn(String colName){
+        return cols(this.tagsToIndex.get(colName));
+    }
+
+    public Column removeColumn(String Colname) {
+        if(!tags.contains(Colname))
+            return null;
+        int index = tagsToIndex.get(Colname);
+        Column c = cols.get(index);
+        tags.remove(index);
+        cols.remove(index);
+        types.remove(index);
+        tagsToIndex.remove(Colname);
+        colNum--;
+        return c;
+    }
+
+    public void removeRow(int row) {
+        if(row >= rowNum)
+            throw new IllegalArgumentException("row is greater than rownum");
+        for(int i = 0; i < colNum; i++){
+            cols.get(i).remove(row);
+        }
+        rowNum--;
+    }
+    public void AddColumn(String colName, Type colType) {
+        if (colType == Type.STRING){
+            Column<String> c = new Column<>(colName, colType);
+            AddColumn(c);
+        } else if(colType == Type.INT){
+            Column<Integer> c = new Column<>(colName, colType);
+            AddColumn(c);
+        } else {
+            Column<Float> c = new Column<>(colName, colType);
+            AddColumn(c);
+        }
+    }
+    public void evaluateArithmeticExpression(Table joined, Operation operation, String firstOperand, String secondOperand, String resulName){
+        Column c1 = joined.cols(joined.tagsToIndex.get(firstOperand));
+        Column result;
+        if(joined.tagsToIndex.containsKey(secondOperand)){
+            Column c2 = joined.cols(joined.tagsToIndex.get(secondOperand));
+            result = operation.operation(resulName, c1, c2);
+        } else{
+            result = operation.operation(resulName, c1, secondOperand);
+        }
+        this.AddColumn(result);
+    }
+
+    public void makeComparision(Comparision comparision, String[] condition){
+        Column c1 = cols(tagsToIndex.get(condition[0]));
+
+        if(tagsToIndex.containsKey(condition[2])) {
+            Column c2 = cols(tagsToIndex.get(condition[2]));
+            for(int i = 0; i < c1.size(); i++) {
+                if (!comparision.compare(c1, c2, i)) {
+                    removeRow(i);
+                    i--;
+                }
+            }
+        } else {
+            for(int i = 0; i < c1.size(); i++){
+                if(!comparision.compare(c1, condition[2], i)){
+                    removeRow(i);
+                    i--;
+                }
+            }
+        }
     }
 
     public Column cols(int i) {
@@ -177,7 +275,7 @@ public class Table {
             for(int j =0 ; j < t2.rowNum; j++){
                 List<String> shared = Table.mergeRowShared(t1, t2, sameTags, i, j);
                 if(shared != null)
-                t.AddRowValues(shared);
+                    t.AddRowValues(shared);
             }
         }
         return t;
@@ -188,10 +286,43 @@ public class Table {
             t = SharedJoin(t1, t2);
         else
             t = CartesianJoin(t1, t2);
-        if(t.getRowNum() == 0) {
-            return null;
-        }
         return t;
+    }
+
+    public static Table Join(List<Table> tableList) {
+        if(tableList.size() == 1)
+            return tableList.get(0);
+        Stack<Table> tableStack = multipleTableJoinHelper(tableList);
+        while(tableStack.size()> 1){
+            Table t1 = tableStack.pop();
+            Table t2 = tableStack.pop();
+            tableStack.push(Join(t1, t2));
+        }
+        return tableStack.pop();
+    }
+
+    public static Table Join(String name, List<Table> tableList) {
+        Table t = Join(tableList);
+        t.name = name;
+        return t;
+    }
+
+    public static Table constructSelectedTable(String name, List<Table> tableList, List<String> colNames) {
+        Table t = Join(tableList);
+        List<Column> l = new ArrayList<>();
+        for(String col: colNames) {
+            l.add(t.removeColumn(col));
+        }
+        Table n = new Table(name, l);
+        return n;
+    }
+
+    public static Stack<Table> multipleTableJoinHelper(List<Table> tables) {
+        Stack<Table> tableStack = new Stack<>();
+        for(int i = tables.size() -1; i>=0; i--){
+            tableStack.push(tables.get(i));
+        }
+        return tableStack;
     }
 
     public void AddRowValues(List<String> values) {
@@ -231,9 +362,9 @@ public class Table {
                     throw new IllegalArgumentException("something wrong about none value");
             } else {
                 switch (col.getType()) {
-                    case INT: row.add(Integer.toString((Integer) col.get(i)));break;
-                    case FLOAT: row.add(Float.toString((Float) col.get(i)));break;
-                    case STRING: row.add((String) col.get(i));break;
+                    case INT: row.add( col.get(i));break;
+                    case FLOAT: row.add(col.get(i));break;
+                    case STRING: row.add(col.get(i));break;
                 }
             }
         }
@@ -241,16 +372,19 @@ public class Table {
     }
     @Override
     public String toString(){
-        String space = "   ";
-        String tab = "         ";
+        String space = ",";
+        String tab = ",";
         String header = "";
         String values = "";
         for(int i = 0; i < colNum; i++) {
-            header += tags(i)+"\\"+ types(i)+ space;
+            header += tags(i)+" "+ types(i)+ space;
         }
         for(int i = 0; i < rowNum; i++) {
             for(int j = 0; j < colNum; j++) {
-                values += getValue(i, j)+ tab;
+                if(types(j) == Type.STRING)
+                    values += getValue(i, j) + tab;
+                else
+                    values += getValue(i, j) + tab;
             }
             values += "\n";
         }
@@ -286,9 +420,9 @@ public class Table {
         l2.add("b");
         t.AddRowValues(l2);
         List<String> l5 = new ArrayList<>();
-        l5.add("100");
+        l5.add("NaN");
         l5.add("100.3");
-        l5.add("bcd");
+        l5.add("NOVALUE");
         t.AddRowValues(l5);
         System.out.println(t);
         Table t2 = new Table("");
